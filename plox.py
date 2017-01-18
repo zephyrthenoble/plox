@@ -1,57 +1,10 @@
 #!/usr/bin/env python
 import sys
 import os
+from io import out, err
 
-### Tokenization ###
-# Single-character tokens.
-tokens = ""
-tokens += "LEFT_PAREN RIGHT_PAREN LEFT_BRACE RIGHT_BRACE "
-tokens += "COMMA DOT MINUS PLUS SEMICOLON SLASH STAR "
-
-# One or two character tokens.
-tokens += "BANG BANG_EQUAL "
-tokens += "EQUAL EQUAL_EQUAL "
-tokens += "GREATER GREATER_EQUAL "
-tokens += "LESS LESS_EQUAL "
-
-# Literals.
-tokens += "IDENTIFIER STRING NUMBER "
-
-# Keywords.
-tokens += "AND CLASS ELSE FALSE FUN FOR IF NIL OR "
-tokens += "PRINT RETURN SUPER THIS TRUE VAR WHILE "
-tokens += "EOF "
-token_types = {}
-for i, e in enumerate(enums.split()):
-    token_types[e] = i
-
-class Token(object):
-    def __init__(self, lexeme, token_type, literal, line_num):
-        assert token_type in token_types.tokens.keys()
-        self.lexeme = str(lexeme)
-        self.type = token_type
-        self.literal = literal
-        self.line = int(line_num)
-    def __str__(self):
-        return "%s %s %s"%(self.type, self.lexeme, self.literal)
-######
-
-### Exceptions ###
-hadError = False
-def exception(line, message):
-    report(message, line)
-def report(message, line, where=""):
-    err("[line %d] Error %s: %s" % (message, line, where))
-    hadError = True
-#######
-
-### Output and input ###
-def err(msg):
-    sys.stderr.write(str(msg))
-
-def out(msg):
-    sys.stdout.write(str(msg))
-#######
+from token import tokens, Token
+from scanner import Scanner
 
 def main(args):
     if len(args) > 1:
