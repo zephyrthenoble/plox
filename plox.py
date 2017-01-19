@@ -3,9 +3,8 @@ import sys
 import os
 from io import out, err
 
-from token import tokens, Token
 from scanner import Scanner
-
+hadError = False
 def main(args):
     if len(args) > 1:
         out("Usage: plox [script]\n")
@@ -29,7 +28,7 @@ def runFile(args):
         sys.exit(15)
 
 def run(data):
-    tokens = data.split()
+    tokens = Scanner(data).scanTokens()
     for t in tokens:
         print t
 if __name__ == "__main__":
