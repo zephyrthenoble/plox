@@ -1,4 +1,4 @@
-import exceptions
+import error
 ### Tokenization ###
 # Single-character tokens.
 tokens = ""
@@ -96,23 +96,37 @@ class Scanner(object):
             if self.match("/"):
                 while self.peek() != '\n' and not self.isAtEnd():
                     self.advance()
+        elif c is '"':
+            self.string()
+        elif c.isdigit():
+            self.number()
         elif c in ' \r\t':
             pass
         elif c in '\n':
             self.line += 1
         else:
-            exceptions.exception(self.line, "Unexpected character")
+            error.report(self.line, "Unexpected character", repr(c))
             
+    def number(self):
+        while self.peek().isdigit():
+            self.advance()
+        if self.peek() is '.' and self.peekNext().isdigit():
+            self.advance()
+            while self.peek().isdigit():
+                self.advance()
+        self.addToken("NUMBER", float(self.source[self.start:self.current]))
+
     def string(self):
+        #iterate until we find another "
         while self.peek() != '"' and not self.isAtEnd():
             if self.peek() is '\n':
                 self.line += 1
             self.advance()
 
         if self.isAtEnd():
-            exceptions.exception(self.line, "Unterminated string.")
+            error.exception(self.line, "Unterminated string.")
         self.advance()
-        value = self.source[self.start + 1, self.current - 1]
+        value = self.source[self.start + 1:self.current - 1]
         self.addToken("STRING", value)
 
     def peek(self):
@@ -121,17 +135,24 @@ class Scanner(object):
             return '\0'
         return self.source[self.current]
 
+    def peekNext(self):
+        """Returns the next next character without advancing"""
+        if self.current + 1 >= len(self.source):
+            return '\0'
+        return self.source[self.current + 1]
+
     def advance(self):
         """Returns next character while consuming"""
         self.current += 1
         return self.source[self.current - 1]
 
     def match(self, expected):
+        """Advance if we match the expecte value (c='!', check for '=')"""
         if self.isAtEnd():
             return False
         if self.source[self.current] != expected:
             return False
-        curent += 1
+        self.current += 1
         return True
 
     def addTokenType(self, mytype):

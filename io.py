@@ -1,3 +1,4 @@
+import sys
 ### Output and input ###
 def err(msg):
     sys.stderr.write(str(msg))
