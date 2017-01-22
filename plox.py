@@ -16,7 +16,15 @@ def main(args):
 def runPrompt():
     while True:
         hadError = False
-        run(raw_input("> "))
+        try:
+            run(raw_input("> "))
+        except EOFError:
+            out("\nEnd of input\n")
+            break
+        except KeyboardInterrupt:
+            out("\nKeyboard Interrupt\n")
+            break
+
 
 def runFile(args):
     filename = args[0]
