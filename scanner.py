@@ -20,6 +20,23 @@ tokens += "PRINT RETURN SUPER THIS TRUE VAR WHILE "
 tokens += "EOF "
 token_types = tokens.split()
 
+identifiers = {
+       "and":"AND",
+        "class":"CLASS",
+        "false":"FALSE",
+        "for":"FOR",
+        "fun":"FUN",
+        "if":"IF",
+        "nil":"NIL",
+        "or":"OR",
+        "print":"PRINT",
+        "return":"RETURN",
+        "super":"SUPER",
+        "this":"THIS",
+        "true":"TRUE",
+        "var":"VAR",
+        "while":"WHILE",
+        }
 class Token(object):
     def __init__(self, lexeme, token_type, literal, line_num):
         assert token_type in token_types
@@ -75,7 +92,7 @@ class Scanner(object):
                 self.addTokenType("BANG_EQUAL")
             else:
                 self.addTokenType("BANG")
-        # TODO =:
+        # TODO :=
         elif c is "=":
             if self.match("="):
                 self.addTokenType("EQUAL_EQUAL")
@@ -96,16 +113,39 @@ class Scanner(object):
             if self.match("/"):
                 while self.peek() != '\n' and not self.isAtEnd():
                     self.advance()
+            # block comment
+            elif self.match("*"):
+                while self.peek() != '*' and self.peekNext() != '/' and not self.isAtEnd():
+                    self.advance()
+                if self.peekNext() == '/':
+                    self.advance()
         elif c is '"':
             self.string()
+        # start of a number
         elif c.isdigit():
             self.number()
+        # identifiers star a-Z and _
+        elif c.isalpha():
+            self.identifier()
         elif c in ' \r\t':
             pass
         elif c in '\n':
             self.line += 1
         else:
             error.report(self.line, "Unexpected character", repr(c))
+
+    def isAlpha(self, c):
+        return c.isalpha() or c is "_"
+
+    def isAlphaNumeric(self, c):
+        return self.isAlpha(c) or c.isdigit()
+
+    def identifier(self):
+        while self.isAlphaNumeric(self.peek()):
+            self.advance()
+        text = self.source[self.start:self.current]
+        token_type = identifiers.get(text, "IDENTIFIER")
+        self.addTokenType(token_type)
             
     def number(self):
         while self.peek().isdigit():
@@ -119,6 +159,7 @@ class Scanner(object):
     def string(self):
         #iterate until we find another "
         while self.peek() != '"' and not self.isAtEnd():
+            previous = self.current
             if self.peek() is '\n':
                 self.line += 1
             self.advance()
